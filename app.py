@@ -702,7 +702,7 @@ def generate_layout_template(prompt):
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@color/generated_background">
+    android:background="@color/background_color">
 
     <TextView
         android:id="@+id/title_text"
@@ -711,14 +711,14 @@ def generate_layout_template(prompt):
         android:text="Generated Layout"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/generated_text"
+        android:textColor="@color/text_color"
         android:gravity="center"
         android:layout_marginBottom="16dp" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/generated_secondary"
+        android:background="@color/secondary_color"
         android:layout_marginBottom="16dp" />
 
     <ScrollView
@@ -727,11 +727,25 @@ def generate_layout_template(prompt):
         android:layout_weight="1">
 
         <LinearLayout
+            android:id="@+id/content_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="8dp">
 
-            <!-- Add your content here -->
+            <Button
+                android:id="@+id/button1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button1_text"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button2_text"
+                android:layout_marginBottom="8dp" />
 
         </LinearLayout>
     </ScrollView>
@@ -744,6 +758,10 @@ def generate_activity_template(prompt):
     return """
 // Generated Activity Class
 public class GeneratedActivity extends AppCompatActivity {
+    
+    private TextView titleText;
+    private LinearLayout contentContainer;
+    private Button button1, button2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -755,13 +773,47 @@ public class GeneratedActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        // Initialize your views here
-        TextView titleText = findViewById(R.id.title_text);
-        titleText.setText("Generated Activity");
+        // Initialize views with proper casting to prevent ClassCastException
+        titleText = (TextView) findViewById(R.id.title_text);
+        contentContainer = (LinearLayout) findViewById(R.id.content_container);
+        button1 = (Button) findViewById(R.id.button1);
+        button2 = (Button) findViewById(R.id.button2);
+        
+        // Verify views are not null before using them
+        if (titleText != null) {
+            titleText.setText("Generated Activity");
+        }
+        
+        if (button1 != null) {
+            button1.setText("Button 1");
+        }
+        
+        if (button2 != null) {
+            button2.setText("Button 2");
+        }
     }
 
     private void setupEventListeners() {
-        // Setup click listeners and other event handlers
+        // Setup click listeners with null checks
+        if (button1 != null) {
+            button1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Handle button1 click
+                    Toast.makeText(GeneratedActivity.this, "Button 1 clicked", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        
+        if (button2 != null) {
+            button2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Handle button2 click
+                    Toast.makeText(GeneratedActivity.this, "Button 2 clicked", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     @Override
@@ -781,7 +833,8 @@ public class GeneratedActivity extends AppCompatActivity {
 <activity
     android:name=".GeneratedActivity"
     android:exported="false"
-    android:label="Generated Activity" />
+    android:label="Generated Activity"
+    android:theme="@style/AppTheme" />
 """
 
 def generate_generic_template(prompt):
