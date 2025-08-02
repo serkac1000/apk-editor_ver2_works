@@ -298,10 +298,27 @@ def download_apk(project_id):
 
         apk_path = apk_editor.get_compiled_apk_path(project_id)
         if apk_path and os.path.exists(apk_path):
-            return send_file(apk_path, 
-                           as_attachment=True, 
-                           download_name=f"{project['name']}_modified.apk",
-                           mimetype='application/vnd.android.package-archive')
+            from flask import Response
+            
+            def generate():
+                with open(apk_path, 'rb') as f:
+                    while True:
+                        data = f.read(4096)
+                        if not data:
+                            break
+                        yield data
+            
+            filename = f"{project['name']}_modified.apk"
+            response = Response(generate(), mimetype='application/vnd.android.package-archive')
+            response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+            response.headers['Content-Type'] = 'application/vnd.android.package-archive'
+            response.headers['Content-Description'] = 'Android Package'
+            response.headers['Content-Transfer-Encoding'] = 'binary'
+            response.headers['Cache-Control'] = 'must-revalidate, post-check=0, pre-check=0'
+            response.headers['Pragma'] = 'public'
+            response.headers['Expires'] = '0'
+            
+            return response
         else:
             flash('Compiled APK not found. Please compile first.', 'error')
             return redirect(url_for('project_view', project_id=project_id))
